@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+/* ── Colour tokens ── */
+:root {
+  --bg:           #F8F5EF;
+  --bg-soft:      #FFFFFF;
+  --card:         #FFFFFF;
+  --ink:          #111110;
+  --muted:        #3A3835;        /* secondary — darkened for light mode legibility */
+  --muted-soft:   #5A5753;        /* tertiary — darkened for light mode legibility */
+  --line:         #D8D0C4;
+  --line-strong:  #BFB5A5;
+  --accent:       #111110;
+}
+.dark {
+  --bg:           #0C0C0B;
+  --bg-soft:      #131312;
+  --card:         #181816;
+  --ink:          #F2EFE8;
+  --muted:        #A8A6A0;        /* secondary — contrast ~6.5:1 on bg */
+  --muted-soft:   #7E7C78;        /* tertiary — still ≥4.5:1 */
+  --line:         #2A2824;
+  --line-strong:  #3A3834;
+  --accent:       #F2EFE8;
+}
+
+/* ── Base reset ── */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+* { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+
+/* ── Body — Space Grotesk ── */
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1;
+  transition: background-color 0.25s, color 0.25s;
+}
+
+/* ── Display headings — DM Serif Display ── */
+.font-serif,
+h1, h2 {
+  font-family: var(--font-serif), Georgia, serif;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+  font-feature-settings: "kern" 1;
+}
+
+/* Architectural Sans Display */
+.font-display {
+  font-family: var(--font-display), system-ui, sans-serif;
+}
+
+/* ── Section eyebrow — mono + sans pairing (architectural drawing style) ── */
+.section-kicker {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.section-title {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: clamp(30px, 3.4vw, 40px);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  font-weight: 400;
+}
+.section-rule {
+  height: 1px;
+  background: var(--line);
+}
+
+/* ── Type scale utilities ── */
+.t-display  { font-family: var(--font-serif), Georgia, serif; font-size: clamp(48px, 7vw, 88px); line-height: 0.9;  letter-spacing: -0.03em; }
+.t-headline { font-family: var(--font-serif), Georgia, serif; font-size: clamp(28px, 4vw, 48px);  line-height: 0.95; letter-spacing: -0.02em; }
+.t-title    { font-family: var(--font-serif), Georgia, serif; font-size: clamp(20px, 2.5vw, 30px); line-height: 1.1;  letter-spacing: -0.01em; }
+.t-body     { font-family: var(--font-sans),  system-ui, sans-serif; font-size: 13px; line-height: 1.7; letter-spacing: 0.01em; }
+.t-small    { font-family: var(--font-sans),  system-ui, sans-serif; font-size: 11px; line-height: 1.5; }
+.t-label    { font-family: var(--font-sans),  system-ui, sans-serif; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; }
+
+/* ── Selection ── */
+::selection { background: var(--ink); color: var(--bg); }
+.dark ::selection { background: #F2EFE8; color: #0C0C0B; }
+
+/* ── Contrast fix: aggressively lift faded text in light mode ── */
+/* opacity-X di atas beige #F8F5EF sangat pucat — naikkan nilainya */
+.opacity-15 { opacity: 0.45; }
+.opacity-20 { opacity: 0.55; }
+.opacity-25 { opacity: 0.62; }
+.opacity-30 { opacity: 0.70; }
+.opacity-40 { opacity: 0.78; }
+.opacity-50 { opacity: 0.85; }
+.opacity-55 { opacity: 0.88; }
+.opacity-60 { opacity: 0.90; }
+.opacity-65 { opacity: 0.92; }
+.opacity-70 { opacity: 0.94; }
+/* Dark mode: kembalikan ke nilai asli */
+.dark .opacity-15 { opacity: 0.15; }
+.dark .opacity-20 { opacity: 0.20; }
+.dark .opacity-25 { opacity: 0.25; }
+.dark .opacity-30 { opacity: 0.30; }
+.dark .opacity-40 { opacity: 0.40; }
+.dark .opacity-50 { opacity: 0.50; }
+.dark .opacity-55 { opacity: 0.55; }
+.dark .opacity-60 { opacity: 0.60; }
+.dark .opacity-65 { opacity: 0.65; }
+.dark .opacity-70 { opacity: 0.70; }
+/* White text on images stays subtle — override back */
+.text-white.opacity-15, [class*="text-white/"].opacity-15 { opacity: 0.15; }
+.text-white.opacity-20, [class*="text-white/"].opacity-20 { opacity: 0.20; }
+.text-white.opacity-25, [class*="text-white/"].opacity-25 { opacity: 0.25; }
+.text-white.opacity-30, [class*="text-white/"].opacity-30 { opacity: 0.30; }
+.text-white\/15 { opacity: 0.15; }
+.text-white\/20 { opacity: 0.20; }
+.text-white\/25 { opacity: 0.25; }
+.text-white\/30 { opacity: 0.30; }
+.text-white\/40 { opacity: 0.40; }
+.text-white\/45 { opacity: 0.45; }
+.text-white\/55 { opacity: 0.55; }
+
+/* ── Utility ── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── View Transitions (Theme Toggle) ── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
+}
