@@ -159,7 +159,7 @@ export function Contact({ studio }: { studio: StudioData }) {
               className="w-full aspect-[4/3] object-cover"
             />
           </div>
-          <p className="t-caption mt-2 opacity-40">Kemang Atelier — converted warehouse, 2018</p>
+          <p className="t-caption mt-2 opacity-40">Kemang Atelier converted warehouse 2018</p>
         </motion.div>
       </div>
     </section>

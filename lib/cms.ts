@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 export type { Project, Journal, TeamMember, Product, StudioData, CMS } from "./cms.defaults";
 import { DEFAULT_PROJECTS, DEFAULT_JOURNAL, DEFAULT_STUDIO, DEFAULT_TEAM, DEFAULT_PRODUCTS } from "./cms.defaults";
 
-const KEY = "savana_cms_v9";
+const KEY = "savana_cms_v11";
 
 const defaults = { projects: DEFAULT_PROJECTS, journal: DEFAULT_JOURNAL, studio: DEFAULT_STUDIO, team: DEFAULT_TEAM, products: DEFAULT_PRODUCTS };
 
