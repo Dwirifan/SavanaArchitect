@@ -75,11 +75,11 @@ export default function WorkDetailPage() {
             <span className="hidden sm:inline normal-case tracking-[0.04em] opacity-50 ml-1">{project.location} · {project.year}</span>
           </div>
 
-          <div className="grid lg:grid-cols-[1.15fr_420px] gap-8 lg:gap-16 items-end">
+          <div className="flex flex-col gap-6 md:gap-7">
             <h1 className="font-serif font-[300] leading-[0.88] tracking-[-0.04em] text-balance" style={{ fontSize: "clamp(34px, 5.2vw, 68px)" }}>
               {project.title}
             </h1>
-            <div className="lg:pb-1.5">
+            <div className="max-w-[75%]">
               <p className="font-serif text-[16px] md:text-[17px] leading-[1.7] tracking-[-0.01em] opacity-75 text-pretty">
                 <span className="float-left font-serif font-bold text-[36px] leading-[0.8] mr-2 mt-1 opacity-90">{project.excerpt.charAt(0)}</span>
                 {project.excerpt.slice(1)}
@@ -107,45 +107,36 @@ export default function WorkDetailPage() {
         <div className="mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12 mt-10 md:mt-14">
           <div className="grid lg:grid-cols-[280px_1fr] gap-10 lg:gap-14 items-start">
             <div className="lg:sticky lg:top-24 order-2 lg:order-1">
-              <div className="border border-[var(--line)] bg-[var(--card)] overflow-hidden">
-                <div className="px-5 py-4 border-b border-[var(--line)] flex items-center justify-between">
-                  <span className="font-mono text-[10px] tracking-[0.18em] uppercase opacity-40">Project facts</span>
-                  <span className="font-mono text-[10px] opacity-20">{String(idx + 1).padStart(2, "0")}</span>
-                </div>
-                <div className="divide-y divide-[var(--line)]">
-                  <div className="px-5 py-4 flex justify-between gap-4">
-                    <span className="font-mono text-[10px] tracking-[0.14em] uppercase opacity-40">Location</span>
-                    <span className="font-serif text-[14px] leading-tight text-right">{project.location}</span>
+              {/* minimal facts — hairline only, no card */}
+              <div className="border-t border-[var(--line-strong)] pt-4">
+                <span className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-30">Project facts</span>
+                <dl className="mt-5 divide-y divide-[var(--line)] border-y border-[var(--line)]">
+                  <div className="flex justify-between gap-4 py-3.5">
+                    <dt className="font-mono text-[10px] tracking-[0.14em] uppercase opacity-35">Location</dt>
+                    <dd className="font-serif text-[13px] leading-none text-right opacity-80">{project.location}</dd>
                   </div>
-                  <div className="px-5 py-4 flex justify-between gap-4">
-                    <span className="font-mono text-[10px] tracking-[0.14em] uppercase opacity-40">Year</span>
-                    <span className="font-serif text-[14px]">{project.year}</span>
+                  <div className="flex justify-between gap-4 py-3.5">
+                    <dt className="font-mono text-[10px] tracking-[0.14em] uppercase opacity-35">Year</dt>
+                    <dd className="font-serif text-[13px] opacity-80">{project.year}</dd>
                   </div>
                   {project.area && (
-                    <div className="px-5 py-4 flex justify-between gap-4">
-                      <span className="font-mono text-[10px] tracking-[0.14em] uppercase opacity-40">Area</span>
-                      <span className="font-serif text-[14px]">{project.area}</span>
+                    <div className="flex justify-between gap-4 py-3.5">
+                      <dt className="font-mono text-[10px] tracking-[0.14em] uppercase opacity-35">Area</dt>
+                      <dd className="font-serif text-[13px] opacity-80">{project.area}</dd>
                     </div>
                   )}
-                  <div className="px-5 py-4 flex justify-between gap-4">
-                    <span className="font-mono text-[10px] tracking-[0.14em] uppercase opacity-40">Category</span>
-                    <span className="t-label text-[11px] tracking-[0.08em] uppercase opacity-70">{project.category}</span>
+                  <div className="flex justify-between gap-4 py-3.5">
+                    <dt className="font-mono text-[10px] tracking-[0.14em] uppercase opacity-35">Category</dt>
+                    <dd className="font-mono text-[11px] tracking-[0.08em] uppercase opacity-60">{project.category}</dd>
                   </div>
-                  <div className="px-5 py-4 flex justify-between gap-4">
-                    <span className="font-mono text-[10px] tracking-[0.14em] uppercase opacity-40">Frames</span>
-                    <span className="font-mono text-[11px] opacity-60">{project.images.length} photos</span>
-                  </div>
-                </div>
-                {next && (
-                  <Link href={`/works/${next.id}`} className="flex items-center justify-between px-5 py-4 bg-[var(--bg)] border-t border-[var(--line)] group hover:bg-[var(--ink)] hover:text-[var(--bg)] transition-colors">
-                    <span className="t-label text-[10px] tracking-[0.14em] uppercase opacity-50 group-hover:opacity-60">Next — {next.title}</span>
-                    <ArrowLeftIcon className="w-3.5 h-3.5 rotate-180 group-hover:translate-x-0.5 transition-transform" />
-                  </Link>
-                )}
+                </dl>
               </div>
-              <p className="font-mono text-[10px] leading-relaxed tracking-[0.04em] opacity-30 mt-3 px-1">
-                Grid below shows site frames. Click any tile to open lightbox. Use arrows or swipe.
-              </p>
+              {next && (
+                <Link href={`/works/${next.id}`} className="mt-3 flex items-center justify-between py-3 border-b border-[var(--line)] group">
+                  <span className="font-mono text-[10px] tracking-[0.14em] uppercase opacity-30 group-hover:opacity-60 transition-opacity">Next — {next.title}</span>
+                  <ArrowLeftIcon className="w-3.5 h-3.5 rotate-180 opacity-30 group-hover:opacity-60 group-hover:translate-x-0.5 transition-all" />
+                </Link>
+              )}
             </div>
 
             {/* Gallery grid + lightbox */}
