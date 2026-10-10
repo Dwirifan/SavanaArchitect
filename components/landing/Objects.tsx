@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ArrowRightIcon, ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { Product } from "@/lib/cms";
 import { motion } from "framer-motion";
+import { FuturisticLine } from "./FuturisticLine";
+import { ImageSkeleton } from "@/components/ui/Skeleton";
 
 const PREVIEW = 4;
 
@@ -10,16 +12,16 @@ export function Objects({ products }: { products: Product[]; }) {
   const preview = products.slice(0, PREVIEW);
   return (
     <section id="objects" className="mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12 pt-8 md:pt-10 pb-8 md:pb-10 scroll-mt-14">
-      <div className="flex flex-wrap items-end justify-between gap-6 pb-8 md:pb-10 mb-2">
+      <div className="flex flex-wrap items-end justify-between gap-6 pb-8 md:pb-10">
         <div>
           <h2
             className="font-serif"
             style={{ fontSize: "clamp(38px, 5vw, 64px)", lineHeight: 0.9, letterSpacing: "-0.03em", fontWeight: 400 }}
           >
-            Objects
+            Collection
           </h2>
           <p className="t-label opacity-60 mt-3 normal-case tracking-[0.06em] hidden sm:block">
-            Catalog &nbsp;·&nbsp; Reclaimed teak &nbsp;·&nbsp; Local clay
+            Curated pieces &nbsp;·&nbsp; Reclaimed teak &nbsp;·&nbsp; Local clay
           </p>
         </div>
         {products.length > PREVIEW && (
@@ -28,6 +30,7 @@ export function Objects({ products }: { products: Product[]; }) {
           </Link>
         )}
       </div>
+      <FuturisticLine className="mb-6" />
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {preview.map((prod, idx) => (
           <ProductCard key={prod.id} prod={prod} idx={idx} />
@@ -59,7 +62,7 @@ function ProductCard({ prod, idx }: { prod: Product; idx: number }) {
     >
       <Link href={`/objects/${prod.id}?from=landing`} className="flex flex-col h-full">
         <div className="relative aspect-[4/3] overflow-hidden">
-          <img src={prod.image} alt={prod.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-700 ease-out" />
+          <ImageSkeleton src={prod.image} alt={prod.name} className="absolute inset-0" imgClassName="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-700 ease-out" />
           <div className="absolute top-2 left-2 flex gap-1 z-10">
             <span className="px-2 py-1 bg-white/90 backdrop-blur-sm text-black text-[9px] tracking-[0.14em] uppercase font-medium">{prod.category}</span>
             {!prod.inStock && <span className="px-2 py-1 bg-[var(--ink)] text-[var(--bg)] text-[9px] tracking-[0.14em] uppercase">Pre-order</span>}

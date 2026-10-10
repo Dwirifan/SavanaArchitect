@@ -2,6 +2,8 @@
 import Link from "next/link";
 import { TeamMember, Journal } from "@/lib/cms";
 import { motion } from "framer-motion";
+import { FuturisticLine } from "./FuturisticLine";
+import { ImageSkeleton } from "@/components/ui/Skeleton";
 
 export function Team({ team }: { team: TeamMember[] }) {
   return (
@@ -39,11 +41,7 @@ function TeamCard({ member: m, index: i }: { member: TeamMember; index: number }
       transition={{ duration: 0.65, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
       className="group relative aspect-[3/4] overflow-hidden bg-[var(--bg)]"
     >
-      <img
-        src={m.image}
-        alt={m.name}
-        className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-[1.05] transition-all duration-700"
-      />
+      <ImageSkeleton src={m.image} alt={m.name} className="absolute inset-0" imgClassName="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-[1.05] transition-all duration-700" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-90" />
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-500" />
       <div className="absolute top-3 left-3 t-label text-white/40 text-[9px] tracking-[0.18em]">{String(i + 1).padStart(2, "0")}</div>
@@ -64,7 +62,7 @@ export function JournalSection({ journal }: { journal: Journal[] }) {
   const preview = journal.slice(0, 4);
   return (
     <section id="journal" className="mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12 pt-8 md:pt-10 pb-10 md:pb-14 lg:pb-16 scroll-mt-14">
-      <div className="flex flex-wrap items-end justify-between gap-6 pb-6 mb-2">
+      <div className="flex flex-wrap items-end justify-between gap-6 pb-6">
         <div>
           <h2
             className="font-serif"
@@ -84,6 +82,7 @@ export function JournalSection({ journal }: { journal: Journal[] }) {
           <span className="t-label opacity-50 text-[9px] tracking-[0.18em] hidden md:inline">FIELD NOTES</span>
         )}
       </div>
+      <FuturisticLine className="mb-6" />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
         {journal.length === 0 && <div className="col-span-2 lg:col-span-4 py-20 text-center section-kicker opacity-20 bg-[var(--bg)]">No entries</div>}
@@ -104,7 +103,7 @@ function JournalCard({ journal: j, idx }: { journal: Journal; idx: number }) {
       transition={{ duration: 0.65, delay: (idx % 4) * 0.09, ease: [0.22, 1, 0.36, 1] }}
     >
       <Link href={`/journal/${j.id}?from=landing`} className="group cursor-pointer relative aspect-[4/5] overflow-hidden bg-[var(--bg)] block">
-        <img src={j.image} alt={j.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-700" />
+        <ImageSkeleton src={j.image} alt={j.title} className="absolute inset-0" imgClassName="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-700" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-500" />
         <div className="absolute top-3 left-3 flex items-center gap-2">

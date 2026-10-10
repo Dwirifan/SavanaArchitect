@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ArrowRightIcon, ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { Project } from "@/lib/cms";
 import { motion } from "framer-motion";
+import { FuturisticLine } from "./FuturisticLine";
+import { ImageSkeleton } from "@/components/ui/Skeleton";
 
 const PREVIEW = 5;
 
@@ -21,7 +23,7 @@ export function Works({
   return (
     <section id="works" className="mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12 pt-14 md:pt-16 lg:pt-20 pb-8 md:pb-10 lg:pb-12 scroll-mt-14">
       {/* ── Section head ── */}
-      <div className="flex flex-wrap items-end justify-between gap-6 pb-8 md:pb-10 mb-2">
+      <div className="flex flex-wrap items-end justify-between gap-6 pb-8 md:pb-10">
         <div>
           <h2
             className="font-serif"
@@ -39,6 +41,7 @@ export function Works({
           </Link>
         )}
       </div>
+      <FuturisticLine className="mb-6" />
 
       {preview.length === 0 && (
         <div className="py-20 text-center t-label opacity-20">
@@ -109,10 +112,11 @@ function ProjectCard({
     >
       <Link href={`/works/${p.id}`} className="block relative w-full h-full">
         <div className={`relative w-full overflow-hidden ${imgH}`}>
-          <img
+          <ImageSkeleton
             src={p.cover}
             alt={p.title}
-            className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-700 ease-out"
+            className="absolute inset-0"
+            imgClassName="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-700 ease-out"
           />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors duration-500" />
           <div className="absolute top-4 left-4 t-label text-white opacity-40">

@@ -37,7 +37,24 @@ export default function Home() {
     return () => { window.removeEventListener("savana:update", h); window.removeEventListener("storage", h); };
   }, []);
 
-  if (!cms) return null;
+  if (!cms) return (
+    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--ink)]">
+      <Navbar />
+      <main className="flex-1">
+        <div className="mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12 py-12">
+          <div className="h-[56vh] bg-[var(--card)] animate-pulse border border-[var(--line)]/40" />
+          <div className="mt-8 grid lg:grid-cols-[1.5fr_1fr] gap-3">
+            <div className="h-[380px] bg-[var(--line)]/20 animate-pulse" />
+            <div className="grid grid-rows-2 gap-3">
+              <div className="h-[184px] bg-[var(--line)]/20 animate-pulse" />
+              <div className="h-[184px] bg-[var(--line)]/20 animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--ink)] selection:bg-[var(--ink)] selection:text-[var(--bg)]">

@@ -63,13 +63,19 @@ export async function saveCMS(data: import("./cms.defaults").CMS) {
     window.dispatchEvent(new CustomEvent("savana:update", { detail: data }));
   }
   try {
-    await fetch("/api/cms", {
+    const res = await fetch("/api/cms", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
+      credentials: "same-origin",
     });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      throw new Error(j.error || `save failed ${res.status}`);
+    }
   } catch (e) {
     console.error("saveCMS failed", e);
+    throw e;
   }
 }
 

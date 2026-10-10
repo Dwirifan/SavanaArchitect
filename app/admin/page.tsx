@@ -25,22 +25,52 @@ const MENUS: { id: Tab; label: string; icon: React.ElementType; desc: string }[]
 export default function AdminPage() {
   const [cms, setCms] = useState<CMS | null>(null);
   const [tab, setTab] = useState<Tab>("dashboard");
-  const [auth, setAuth] = useState(false);
+  const [auth, setAuth] = useState<boolean | null>(null);
   const [msg, setMsg] = useState("");
   const { theme } = useTheme();
 
+  const AUTH_KEY = "savana_admin_auth";
+
   useEffect(() => { loadCMS().then(setCms); }, []);
-  if (!cms) return null;
+
+  // restore auth from cookie/localStorage — so back/refresh doesn't logout
+  useEffect(() => {
+    try {
+      const ls = localStorage.getItem(AUTH_KEY) === "1";
+      const cookie = document.cookie.split("; ").some(c => c.startsWith(`${AUTH_KEY}=1`));
+      if (ls || cookie) setAuth(true);
+      else setAuth(false);
+    } catch { setAuth(false); }
+  }, []);
+
+  const persistAuth = (v: boolean) => {
+    setAuth(v);
+    try {
+      if (v) {
+        localStorage.setItem(AUTH_KEY, "1");
+        document.cookie = `${AUTH_KEY}=1; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+      } else {
+        localStorage.removeItem(AUTH_KEY);
+        document.cookie = `${AUTH_KEY}=; path=/; max-age=0`;
+      }
+    } catch {}
+  };
+
+  if (!cms || auth === null) return null;
 
   const persist = async (next: CMS) => { 
     setCms(next); 
-    await saveCMS(next); 
-    setMsg("Tersimpan ✓"); 
-    setTimeout(() => setMsg(""), 1500); 
+    try {
+      await saveCMS(next); 
+      setMsg("Tersimpan ✓"); 
+    } catch (e: any) {
+      setMsg(e?.message?.includes("429") ? "Terlalu sering — coba lagi sebentar" : e?.message?.includes("401") ? "Sesi habis — login ulang" : "Gagal simpan");
+    }
+    setTimeout(() => setMsg(""), 2000); 
   };
 
   if (!auth) {
-    return <LoginForm onLogin={() => setAuth(true)} />;
+    return <LoginForm onLogin={() => persistAuth(true)} />;
   }
 
   const activeMenu = MENUS.find(m => m.id === tab);
@@ -93,7 +123,7 @@ export default function AdminPage() {
             Reset Data Default
           </button>
           <button 
-            onClick={() => setAuth(false)} 
+            onClick={() => persistAuth(false)} 
             className="w-full flex justify-center items-center gap-2 text-xs px-4 py-2.5 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors"
           >
             <ArrowRightOnRectangleIcon className="w-4 h-4 opacity-50" />

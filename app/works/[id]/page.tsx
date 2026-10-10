@@ -6,6 +6,7 @@ import { ArrowLeftIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from "@he
 import { loadCMS, type CMS } from "@/lib/cms";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
+import { ImageSkeleton } from "@/components/ui/Skeleton";
 
 export default function WorkDetailPage() {
   const params = useParams();
@@ -32,7 +33,38 @@ export default function WorkDetailPage() {
     return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
   }, [lightbox, cms, id]);
 
-  if (!cms) return null;
+  if (!cms) return (
+    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--ink)]">
+      <Navbar />
+      <main className="flex-1 w-full pt-10 pb-24">
+        <div className="mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12">
+          <div className="h-4 w-28 bg-[var(--line)]/60 animate-pulse rounded" />
+          <div className="mt-8 h-12 w-2/3 bg-[var(--line)]/40 animate-pulse rounded" />
+          <div className="mt-6 h-20 w-3/4 bg-[var(--line)]/30 animate-pulse rounded" />
+          <div className="mt-10 h-px bg-[var(--line)]" />
+        </div>
+        <div className="w-full mt-8">
+          <div className="mx-auto max-w-[1800px] px-4 md:px-8 lg:px-12">
+            <div className="w-full h-[58vh] bg-[var(--card)] animate-pulse border border-[var(--line)]/40" />
+          </div>
+        </div>
+        <div className="mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12 mt-10">
+          <div className="grid lg:grid-cols-[280px_1fr] gap-10">
+            <div className="space-y-3">
+              <div className="h-4 w-24 bg-[var(--line)]/40 animate-pulse" />
+              <div className="h-20 w-full bg-[var(--line)]/20 animate-pulse" />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="aspect-[4/3] bg-[var(--line)]/20 animate-pulse" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
   const project = cms.projects.find(p => p.id === id);
   const idx = cms.projects.findIndex(p => p.id === id);
 
@@ -96,10 +128,15 @@ export default function WorkDetailPage() {
 
         <div className="w-full mt-8 md:mt-10">
           <div className="mx-auto max-w-[1800px] px-4 md:px-8 lg:px-12">
-            <button onClick={() => setLightbox(0)} className="relative w-full overflow-hidden bg-[var(--card)] group text-left">
-              <img src={project.cover} alt={project.title} className="w-full h-auto object-cover max-h-[86vh] group-hover:scale-[1.01] transition-transform duration-700" />
+            <button onClick={() => setLightbox(0)} className="relative w-full overflow-hidden bg-[var(--card)] group text-left block">
+              <ImageSkeleton
+                src={project.cover}
+                alt={project.title}
+                className="w-full max-h-[86vh]"
+                imgClassName="w-full h-auto object-cover max-h-[86vh] group-hover:scale-[1.01] transition-transform duration-700"
+              />
               <div className="absolute bottom-3 right-3 px-2.5 py-1 bg-black/60 backdrop-blur text-white font-mono text-[10px] tracking-[0.12em]">COVER — click to enlarge</div>
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
             </button>
           </div>
         </div>
@@ -149,8 +186,8 @@ export default function WorkDetailPage() {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
                   {visible.map((img, i) => (
                     <button key={i} onClick={() => setLightbox(i)} className="group relative aspect-[4/3] overflow-hidden bg-[var(--card)] border border-[var(--line)] text-left">
-                      <img src={img} alt={`${project.title} ${String(i + 1).padStart(2,"0")}`} className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700" loading="lazy" />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors" />
+                      <ImageSkeleton src={img} alt={`${project.title} ${String(i + 1).padStart(2,"0")}`} className="absolute inset-0" imgClassName="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700" />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors pointer-events-none" />
                       <span className="absolute top-2 left-2 px-1.5 py-0.5 bg-black/55 backdrop-blur text-white font-mono text-[9px] tracking-[0.12em]">{String(i+1).padStart(2,"0")}</span>
                       <span className="absolute bottom-0 left-0 right-0 px-2 py-1.5 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                         <span className="font-mono text-[9px] text-white/80 tracking-[0.08em]">View</span>

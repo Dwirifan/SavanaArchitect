@@ -3,6 +3,8 @@ import { useRef } from "react";
 import { StudioData, TeamMember } from "@/lib/cms";
 import { useTheme } from "@/components/theme";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { FuturisticLine } from "./FuturisticLine";
+import { ImageSkeleton } from "@/components/ui/Skeleton";
 
 export function StudioTeam({ studio, team }: { studio: StudioData; team: TeamMember[] }) {
   const { theme } = useTheme();
@@ -87,10 +89,11 @@ export function StudioTeam({ studio, team }: { studio: StudioData; team: TeamMem
       </div>
 
       {/* ── People — ditinggikan agar pas 1 layar ── */}
-      <div id="team" className="mt-5 pt-4 border-t border-[var(--line)]/60 scroll-mt-14">
+      <div id="team" className="mt-5 pt-4 scroll-mt-14">
+        <FuturisticLine className="mb-3" />
         <div className="flex items-center gap-3">
           <span className="t-label opacity-40 text-[9px] whitespace-nowrap tracking-[0.14em]">THE STUDIO</span>
-          <span className="h-px flex-1 bg-[var(--line)]/60" />
+          <span className="h-px flex-1 bg-[var(--line)]/0" />
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mt-3">
           {team.map((m, i) => (
@@ -112,14 +115,11 @@ function TeamPortrait({ member: m, index: i }: { member: TeamMember; index: numb
       whileHover={{ y: -4 }}
       className="group relative aspect-[3/4] overflow-hidden bg-[var(--card)]"
     >
-      <motion.img
-        initial={{ scale: 1.08 }}
-        whileInView={{ scale: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1.1, delay: i * 0.08 + 0.1, ease: [0.22, 1, 0.36, 1] }}
+      <ImageSkeleton
         src={m.image}
         alt={m.name}
-        className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-[1.05] transition-all duration-700 ease-out"
+        className="absolute inset-0"
+        imgClassName="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-[1.05] transition-all duration-700 ease-out"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-400" />

@@ -2,6 +2,8 @@
 import { StudioData } from "@/lib/cms";
 import { ArrowRightIcon, ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { motion } from "framer-motion";
+import { FuturisticLine } from "./FuturisticLine";
+import { ImageSkeleton } from "@/components/ui/Skeleton";
 
 export function Contact({ studio }: { studio: StudioData }) {
   return (
@@ -10,7 +12,7 @@ export function Contact({ studio }: { studio: StudioData }) {
       className="mx-auto max-w-[1600px] px-4 md:px-8 lg:px-12 pt-14 md:pt-16 lg:pt-20 pb-16 md:pb-20 scroll-mt-14"
     >
       <motion.div 
-        className="flex flex-wrap items-end justify-between gap-6 pb-8 md:pb-10 mb-2"
+        className="flex flex-wrap items-end justify-between gap-6 pb-8 md:pb-10"
         initial={{ opacity: 0, y: 18 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: false, amount: 0.06 }}
@@ -28,6 +30,7 @@ export function Contact({ studio }: { studio: StudioData }) {
           </p>
         </div>
       </motion.div>
+      <FuturisticLine className="mb-8" />
 
       <div className="grid lg:grid-cols-2 gap-8 lg:gap-10 xl:gap-12 items-center">
         {/* LEFT: Contact Info */}
@@ -153,10 +156,11 @@ export function Contact({ studio }: { studio: StudioData }) {
           transition={{ duration: 0.65, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className="overflow-hidden">
-            <img
+            <ImageSkeleton
               src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&q=80&auto=format&fit=crop"
               alt="Kemang atelier"
-              className="w-full aspect-[4/3] object-cover"
+              className="w-full aspect-[4/3]"
+              imgClassName="w-full h-full object-cover"
             />
           </div>
           <p className="t-caption mt-2 opacity-40">Kemang Atelier converted warehouse 2018</p>

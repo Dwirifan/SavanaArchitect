@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { StudioData, Project } from "@/lib/cms";
 import { ArrowRightIcon, ArrowUpRightIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { motion } from "framer-motion";
+import { ImageSkeleton } from "@/components/ui/Skeleton";
 
 export function Hero({ studio, projects }: { studio: StudioData, projects: Project[] }) {
   const slides = projects.slice(0, 4).map((p, i) => ({
