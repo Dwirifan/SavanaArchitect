@@ -62,11 +62,17 @@ export default function AdminPage() {
     setCms(next); 
     try {
       await saveCMS(next); 
-      setMsg("Tersimpan ✓"); 
+      const stored = typeof window !== "undefined" && !process.env.NEXT_PUBLIC_SUPABASE_URL ? " (lokal)" : "";
+      setMsg(`Tersimpan ✓${stored}`); 
     } catch (e: any) {
-      setMsg(e?.message?.includes("429") ? "Terlalu sering — coba lagi sebentar" : e?.message?.includes("401") ? "Sesi habis — login ulang" : "Gagal simpan");
+      const m = e?.message ?? "";
+      if (m.includes("429")) setMsg("Terlalu sering — coba lagi sebentar");
+      else if (m.includes("401")) setMsg("Sesi habis — login ulang");
+      else if (m.includes("Supabase not configured")) setMsg("Tersimpan lokal ✓ (DB belum dikonfigurasi)");
+      else setMsg(`Gagal simpan: ${m.slice(0,120)}`);
+      console.error(e);
     }
-    setTimeout(() => setMsg(""), 2000); 
+    setTimeout(() => setMsg(""), 2500); 
   };
 
   if (!auth) {
