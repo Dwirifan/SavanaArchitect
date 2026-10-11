@@ -29,6 +29,7 @@ export function TeamModal({ cms, onSave }: { cms: CMS; onSave: (c: CMS) => void 
 
   const onPickFile = (file: File) => {
     if (!file.type.startsWith("image/")) return alert("File harus gambar");
+    if (file.size > 20 * 1024 * 1024) return alert("Foto max 20MB — kompres dulu atau pakai file lebih kecil");
     setCropFileName(file.name.replace(/\.[^.]+$/, ".webp"));
     const url = URL.createObjectURL(file);
     setCropSrc(url);

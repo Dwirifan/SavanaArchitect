@@ -1,17 +1,43 @@
 export async function compressImageToBlob(file: File, maxW = 1600, quality = 0.72): Promise<Blob> {
-  const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, maxW / Math.max(bitmap.width, bitmap.height));
-  const w = Math.round(bitmap.width * scale);
-  const h = Math.round(bitmap.height * scale);
+  // Try createImageBitmap first, fallback to <img> for very large files / Safari quirks
+  let w: number, h: number;
+  let draw: (ctx: CanvasRenderingContext2D) => void;
+  let cleanup: () => void = () => {};
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, maxW / Math.max(bitmap.width, bitmap.height));
+    w = Math.round(bitmap.width * scale);
+    h = Math.round(bitmap.height * scale);
+    draw = (ctx) => ctx.drawImage(bitmap, 0, 0, w, h);
+    cleanup = () => bitmap.close();
+  } catch {
+    const url = URL.createObjectURL(file);
+    const img: HTMLImageElement = await new Promise((res, rej) => {
+      const el = new Image();
+      el.onload = () => res(el);
+      el.onerror = () => rej(new Error("Gagal load gambar"));
+      el.src = url;
+    });
+    const scale = Math.min(1, maxW / Math.max(img.naturalWidth, img.naturalHeight));
+    w = Math.round(img.naturalWidth * scale);
+    h = Math.round(img.naturalHeight * scale);
+    draw = (ctx) => ctx.drawImage(img, 0, 0, w, h);
+    cleanup = () => URL.revokeObjectURL(url);
+  }
   const canvas = document.createElement("canvas");
   canvas.width = w; canvas.height = h;
   const ctx = canvas.getContext("2d")!;
-  ctx.drawImage(bitmap, 0, 0, w, h);
-  bitmap.close();
-  const blob: Blob = await new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error("toBlob failed")), "image/webp", quality) as any);
-  // fallback to jpeg if webp not supported (blob size 0)
-  if (blob.size === 0) {
-    return await new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error("toBlob failed")), "image/jpeg", quality) as any);
+  draw(ctx);
+  cleanup();
+  const toBlob = (type: string, q: number) =>
+    new Promise<Blob>((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error("toBlob failed")), type, q) as any);
+  let blob: Blob;
+  try { blob = await toBlob("image/webp", quality); } catch { blob = await toBlob("image/jpeg", quality); }
+  if (!blob || blob.size === 0) blob = await toBlob("image/jpeg", quality);
+  // If still > 1MB, recompress with lower quality once (for 200MB originals)
+  if (blob.size > 1024 * 1024) {
+    const q2 = Math.max(0.5, quality - 0.15);
+    try { const smaller = await toBlob("image/webp", q2); if (smaller.size < blob.size) blob = smaller; } catch {}
   }
   return blob;
 }
