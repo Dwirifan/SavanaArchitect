@@ -9,21 +9,44 @@ const defaults = { projects: DEFAULT_PROJECTS, journal: DEFAULT_JOURNAL, studio:
 export async function loadCMS(): Promise<import("./cms.defaults").CMS> {
   const defaultData = defaults as import("./cms.defaults").CMS;
 
+  let apiData: any = null;
   try {
     const res = await fetch("/api/cms", { cache: "no-store" });
-    if (res.ok) {
-      const data = await res.json();
-      if (data) return normalize(data, defaultData);
-    }
+    if (res.ok) apiData = await res.json();
   } catch {}
 
-  // localStorage fallback
+  // localStorage copy (where saveCMS always writes first)
+  let localData: any = null;
+  if (typeof window !== "undefined") {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) localData = normalize(JSON.parse(raw), defaultData);
+    } catch {}
+  }
+
+  // If API returned defaults (DB belum di-push / belum connect) but local has edits → prefer local
+  if (apiData) {
+    const normalizedApi = normalize(apiData, defaultData);
+    // detect "defaults fallback": same counts as defaults and local has different counts
+    const isApiDefaults =
+      normalizedApi.projects.length === defaultData.projects.length &&
+      normalizedApi.journal.length === defaultData.journal.length &&
+      normalizedApi.team.length === defaultData.team.length;
+    if (isApiDefaults && localData && (
+      localData.projects.length !== normalizedApi.projects.length ||
+      localData.team.length !== normalizedApi.team.length ||
+      localData.products.length !== normalizedApi.products.length ||
+      JSON.stringify(localData.studio) !== JSON.stringify(normalizedApi.studio)
+    )) {
+      console.warn("[cms] API returned defaults but local has edits — using local");
+      return localData;
+    }
+    return normalizedApi;
+  }
+
+  if (localData) return localData;
   if (typeof window === "undefined") return defaultData;
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return defaultData;
-    return normalize(JSON.parse(raw), defaultData);
-  } catch { return defaultData; }
+  return defaultData;
 }
 
 function normalize(parsed: any, fallback: import("./cms.defaults").CMS): import("./cms.defaults").CMS {
@@ -46,21 +69,20 @@ export async function saveCMS(data: import("./cms.defaults").CMS) {
     localStorage.setItem(KEY, JSON.stringify(data));
     window.dispatchEvent(new CustomEvent("savana:update", { detail: data }));
   }
-  try {
-    const res = await fetch("/api/cms", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-      credentials: "same-origin",
-    });
-    if (!res.ok) {
-      const j = await res.json().catch(() => ({}));
-      throw new Error(j.error || `save failed ${res.status}`);
-    }
-  } catch (e) {
-    console.error("saveCMS failed", e);
-    throw e;
+  const res = await fetch("/api/cms", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+    credentials: "same-origin",
+  });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(j.error || `save failed ${res.status}`);
+  // surface DB-not-ready warning so admin UI can show it — don't throw, data is at least in localStorage
+  if (j.stored === "local" && j.warning) {
+    console.warn("[cms] saved locally only:", j.warning);
+    throw new Error(j.warning);
   }
+  return j;
 }
 
 export const defaultsExport = defaults;

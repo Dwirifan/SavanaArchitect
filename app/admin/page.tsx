@@ -61,18 +61,20 @@ export default function AdminPage() {
   const persist = async (next: CMS) => { 
     setCms(next); 
     try {
-      await saveCMS(next); 
-      const stored = typeof window !== "undefined" && !process.env.NEXT_PUBLIC_SUPABASE_URL ? " (lokal)" : "";
-      setMsg(`Tersimpan ✓${stored}`); 
+      const res: any = await saveCMS(next); 
+      if (res?.stored === "prisma") setMsg("Tersimpan ✓");
+      else setMsg("Tersimpan ✓");
     } catch (e: any) {
       const m = e?.message ?? "";
-      if (m.includes("429")) setMsg("Terlalu sering — coba lagi sebentar");
+      // saveCMS throws with warning when DB not ready — data still in localStorage, but show real status
+      if (/localStorage|DB not ready|not configured/i.test(m)) {
+        setMsg("Tersimpan lokal ⚠️ — DB belum siap (jalan pnpm db:push). Reload di device lain akan hilang.");
+      } else if (m.includes("429")) setMsg("Terlalu sering — coba lagi sebentar");
       else if (m.includes("401")) setMsg("Sesi habis — login ulang");
-      else if (m.includes("Supabase not configured")) setMsg("Tersimpan lokal ✓ (DB belum dikonfigurasi)");
-      else setMsg(`Gagal simpan: ${m.slice(0,120)}`);
+      else setMsg(`Gagal simpan: ${m.slice(0,140)}`);
       console.error(e);
     }
-    setTimeout(() => setMsg(""), 2500); 
+    setTimeout(() => setMsg(""), 3500); 
   };
 
   if (!auth) {
