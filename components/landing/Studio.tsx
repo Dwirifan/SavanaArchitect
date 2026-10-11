@@ -88,14 +88,34 @@ export function StudioTeam({ studio, team }: { studio: StudioData; team: TeamMem
         </motion.div>
       </div>
 
-      {/* ── People — ditinggikan agar pas 1 layar ── */}
-      <div id="team" className="mt-5 pt-4 scroll-mt-14">
-        <FuturisticLine className="mb-3" />
-        <div className="flex items-center gap-3">
-          <span className="t-label opacity-40 text-[9px] whitespace-nowrap tracking-[0.14em]">THE STUDIO</span>
-          <span className="h-px flex-1 bg-[var(--line)]/0" />
+      {/* ── People — architectural editorial, scalable 4→12 ── */}
+      <div id="team" className="mt-8 pt-6 scroll-mt-14">
+        <FuturisticLine className="mb-5" />
+        {/* header: editorial lockup — left PEOPLE big serif, right count large display */}
+        <div className="flex items-end justify-between gap-6">
+          <div className="min-w-0">
+            <div className="flex items-baseline gap-3 flex-wrap">
+              <h4 className="font-display font-black uppercase tracking-[-0.02em] leading-none" style={{ fontSize: "clamp(28px, 3.2vw, 42px)" }}>
+                People
+              </h4>
+              <span className="font-serif italic text-[12.5px] opacity-50 hidden sm:inline -translate-y-1">Each house, one lead — on site</span>
+            </div>
+            <div className="flex items-center gap-2.5 mt-2.5">
+              <span className="h-px w-8 bg-[var(--ink)] opacity-20" />
+              <span className="text-[10px] tracking-[0.2em] uppercase opacity-35 font-medium">The Studio</span>
+              <span className="text-[10px] opacity-20">—</span>
+              <span className="text-[10px] tracking-[0.14em] uppercase opacity-40">{team.length} architects & collaborators</span>
+            </div>
+          </div>
+          <div className="hidden sm:flex flex-col items-end leading-none shrink-0">
+            <span className="font-display font-black tabular-nums leading-none tracking-[-0.04em] opacity-[0.07]" style={{ fontSize: "clamp(44px,5vw,72px)", lineHeight: 0.85 }}>
+              {String(team.length).padStart(2, "0")}
+            </span>
+            <span className="text-[9px] tracking-[0.2em] uppercase opacity-30 -mt-1">People</span>
+          </div>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mt-3">
+
+        <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-6">
           {team.map((m, i) => (
             <TeamPortrait key={m.id} member={m} index={i} />
           ))}
@@ -111,26 +131,35 @@ function TeamPortrait({ member: m, index: i }: { member: TeamMember; index: numb
       initial={{ opacity: 0, y: 22, scale: 0.97 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, amount: 0.15 }}
-      transition={{ duration: 0.65, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.65, delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
       whileHover={{ y: -4 }}
-      className="group relative aspect-[3/4] overflow-hidden bg-[var(--card)]"
+      className="group relative aspect-[4/5] overflow-hidden bg-[var(--card)] basis-[calc(50%-6px)] sm:basis-[calc(33.333%-8px)] lg:basis-[calc(25%-12px)] max-w-[340px] grow-0 shrink-0"
     >
       <ImageSkeleton
         src={m.image}
         alt={m.name}
         className="absolute inset-0"
-        imgClassName="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-[1.05] transition-all duration-700 ease-out"
+        imgClassName="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-[1.04] transition-all duration-700 ease-out"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
-      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-400" />
+      {/* overlay lebih editorial — vignette halus */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+      <div className="absolute inset-0 ring-1 ring-white/[0.06] group-hover:ring-white/10 transition-colors" />
+      {/* number watermark */}
+      <span className="absolute top-3 right-3 font-display font-black tabular-nums text-white/0 group-hover:text-white/[0.08] text-[26px] leading-none tracking-[-0.04em] transition-colors select-none">
+        {String(i + 1).padStart(2, "0")}
+      </span>
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.5, delay: i * 0.08 + 0.35 }}
-        className="absolute bottom-0 left-0 right-0 p-3.5 text-white">
-        <div className="t-label text-white/60 text-[8px] tracking-[0.13em]">{m.role}</div>
-        <div className="font-serif text-[14.5px] leading-none tracking-[-0.01em] mt-1">{m.name}</div>
+        transition={{ duration: 0.5, delay: i * 0.07 + 0.32 }}
+        className="absolute bottom-0 left-0 right-0 p-4 text-white">
+        <div className="flex items-center gap-2">
+          <span className="h-px w-6 bg-white/35 group-hover:w-9 group-hover:bg-white/60 transition-all duration-300" />
+          <span className="text-[9px] tracking-[0.18em] uppercase font-medium text-white/55 group-hover:text-white/80 transition-colors">{m.role}</span>
+        </div>
+        <div className="font-serif text-[16px] leading-[1.05] tracking-[-0.015em] mt-2 text-balance">{m.name}</div>
+        <div className="h-px w-0 group-hover:w-full bg-white/20 mt-3 transition-all duration-500 ease-out" />
       </motion.div>
     </motion.div>
   );

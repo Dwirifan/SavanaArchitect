@@ -64,7 +64,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, stored: "local", warning: "POSTGRES_PRISMA_URL not configured — saved to localStorage only" });
   }
   try {
+    // collect old URLs before sync to find orphans
+    const oldUrls = await collectAllUrls();
     await syncCMS(body);
+    // delete orphaned blob/local files (fire and don't block save if fails)
+    const newUrls = collectUrlsFromCMS(body);
+    const removed = [...oldUrls].filter((u) => !newUrls.has(u));
+    if (removed.length) {
+      const { deleteFileFromUrl } = await import("@/lib/storage");
+      await Promise.all(removed.map((u) => deleteFileFromUrl(u).catch(() => {})));
+      if (removed.length) console.log(`[cms] cleaned ${removed.length} orphaned file(s)`);
+    }
     return NextResponse.json({ ok: true, stored: "prisma" });
   } catch (e: any) {
     const msg = e?.message ?? "save failed";
@@ -76,6 +86,42 @@ export async function POST(req: NextRequest) {
     }
     return NextResponse.json({ error: msg, code }, { status: 500 });
   }
+}
+
+function collectUrlsFromCMS(cms: any): Set<string> {
+  const s = new Set<string>();
+  const add = (u: any) => {
+    if (typeof u !== "string" || !u) return;
+    // only track owned storage — skip externals/unsplash/seeds
+    if (u.includes("blob.vercel-storage.com") || u.startsWith("/uploads/") || u.startsWith("/api/blob/")) s.add(u);
+  };
+  for (const p of cms.projects ?? []) { add(p.cover); for (const x of p.images ?? []) add(x); for (const v of p.videos ?? []) add(v); }
+  for (const j of cms.journal ?? []) add(j.image);
+  for (const t of cms.team ?? []) add(t.image);
+  for (const p of cms.products ?? []) { add(p.image); for (const x of p.images ?? []) add(x); }
+  return s;
+}
+
+async function collectAllUrls(): Promise<Set<string>> {
+  if (!prisma) return new Set();
+  try {
+    const [projects, journals, teams, products] = await Promise.all([
+      prisma.savanaProject.findMany({ select: { cover: true, images: true, videos: true } }),
+      prisma.savanaJournal.findMany({ select: { image: true } }),
+      prisma.savanaTeam.findMany({ select: { image: true } }),
+      prisma.savanaProduct.findMany({ select: { image: true, images: true } }),
+    ]);
+    const s = new Set<string>();
+    const add = (u: any) => {
+      if (typeof u !== "string" || !u) return;
+      if (u.includes("blob.vercel-storage.com") || u.startsWith("/uploads/") || u.startsWith("/api/blob/")) s.add(u);
+    };
+    for (const p of projects) { add(p.cover); for (const x of p.images) add(x); for (const v of p.videos) add(v); }
+    for (const j of journals) add(j.image);
+    for (const t of teams) add(t.image);
+    for (const p of products) { add(p.image); for (const x of p.images) add(x); }
+    return s;
+  } catch { return new Set(); }
 }
 
 // --- helpers ---
