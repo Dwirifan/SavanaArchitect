@@ -41,7 +41,9 @@ export async function saveUploadedImage(file: File, prefix: string): Promise<str
   const { bytes, ext, contentType } = await compressImage(raw, file.type, prefix);
   const filename = `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
 
-  if (shouldUseBlob()) {
+  // Try Vercel Blob only if credentials exist — otherwise fallback to local
+  const hasBlobToken = !!process.env.BLOB_READ_WRITE_TOKEN || !!process.env.BLOB_STORE_ID || !!process.env.VERCEL_OIDC_TOKEN;
+  if (hasBlobToken && shouldUseBlob()) {
     try {
       const blob = await put(`uploads/${prefix}/${filename}`, bytes, {
         access: "public",
@@ -49,14 +51,22 @@ export async function saveUploadedImage(file: File, prefix: string): Promise<str
       });
       return blob.url;
     } catch (error: unknown) {
-      if (error instanceof Error && /private store/i.test(error.message)) {
-        const blob = await put(`uploads/${prefix}/${filename}`, bytes, {
-          access: "private",
-          contentType,
-        });
-        return `/api/blob/${blob.pathname}`;
+      const msg = error instanceof Error ? error.message : "";
+      // Missing credentials or private store → fallback to local instead of throwing 500
+      if (/No blob credentials|private store/i.test(msg)) {
+        console.warn(`[storage] Blob unavailable (${msg}), falling back to local`);
+      } else if (/private store/i.test(msg)) {
+        try {
+          const blob = await put(`uploads/${prefix}/${filename}`, bytes, {
+            access: "private",
+            contentType,
+          });
+          return `/api/blob/${blob.pathname}`;
+        } catch {}
+      } else {
+        console.warn(`[storage] Blob put failed: ${msg}, falling back to local`);
       }
-      throw error;
+      // fall through to local
     }
   }
 
