@@ -67,8 +67,14 @@ export async function POST(req: NextRequest) {
     await syncCMS(body);
     return NextResponse.json({ ok: true, stored: "prisma" });
   } catch (e: any) {
-    console.error("[cms POST prisma]", e?.message);
-    return NextResponse.json({ error: e?.message ?? "save failed" }, { status: 500 });
+    const msg = e?.message ?? "save failed";
+    const code = e?.code ?? "";
+    console.error("[cms POST prisma]", code, msg, e);
+    // DB belum di-migrate (P2021 table does not exist) atau belum connect -> jangan 500, fallback ke local agar admin tetap bisa save
+    if (code === "P2021" || /does not exist|Can't reach database|connect|POSTGRES/i.test(msg)) {
+      return NextResponse.json({ ok: true, stored: "local", warning: `DB not ready (${code || msg.slice(0,120)}), saved to localStorage. Run pnpm db:push + Vercel Postgres.` });
+    }
+    return NextResponse.json({ error: msg, code }, { status: 500 });
   }
 }
 
