@@ -21,7 +21,9 @@ export function AdminModal({ open, onClose, title, children, footer, size = "md"
     return () => window.removeEventListener("keydown", handle);
   }, [open, onClose]);
 
-  const widthClass = size === "sm" ? "max-w-md" : size === "lg" ? "max-w-3xl" : "max-w-xl";
+  // modal centered — compact
+  const modalWidth = size === "sm" ? "w-[300px] max-w-[85vw]" : size === "lg" ? "w-[480px] max-w-[88vw]" : "w-[360px] max-w-[86vw]";
+  const drawerWidth = size === "sm" ? "w-[340px] max-w-[85vw]" : size === "lg" ? "w-[600px] max-w-[92vw]" : "w-[480px] max-w-[90vw]";
 
   return (
     <AnimatePresence>
@@ -31,7 +33,7 @@ export function AdminModal({ open, onClose, title, children, footer, size = "md"
           className={
             variant === "sidebar"
               ? "fixed top-24 right-0 bottom-0 left-0 md:left-64 z-50 flex justify-end"
-              : "fixed inset-0 z-50 flex items-center justify-center p-4"
+              : "fixed top-24 bottom-0 left-0 right-0 md:left-64 z-50 flex items-center justify-center p-4 md:p-6"
           }
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -39,16 +41,16 @@ export function AdminModal({ open, onClose, title, children, footer, size = "md"
           transition={{ duration: 0.2 }}
           onClick={onClose}
         >
-          {/* Backdrop */}
-          <div className={`absolute inset-0 bg-[var(--ink)]/${variant === 'sidebar' ? '20' : '40'} backdrop-blur-sm`} />
+          {/* Backdrop — subtle: less blur */}
+          <div className={`absolute inset-0 ${variant === 'sidebar' ? 'bg-black/15 backdrop-blur-[2px]' : 'bg-black/30 backdrop-blur-[2px]'}`} />
 
           {/* Dialog / Drawer */}
           <motion.div
             key="dialog"
             className={
               variant === "sidebar"
-                ? `relative h-full ${widthClass} bg-[var(--card)] text-[var(--ink)] shadow-2xl border-l border-[var(--line)] flex flex-col`
-                : `relative w-full ${widthClass} bg-[var(--card)] text-[var(--ink)] rounded-2xl shadow-2xl border border-[var(--line)] flex flex-col max-h-[90vh] overflow-hidden`
+                ? `relative h-full ${drawerWidth} bg-[var(--card)] text-[var(--ink)] shadow-2xl border-l border-[var(--line)] flex flex-col shrink-0`
+                : `relative w-full ${modalWidth} bg-[var(--card)] text-[var(--ink)] rounded-2xl shadow-2xl border border-[var(--line)] flex flex-col max-h-[90vh] overflow-hidden shrink-0`
             }
             initial={variant === "sidebar" ? { x: "100%" } : { opacity: 0, scale: 0.95, y: 12 }}
             animate={variant === "sidebar" ? { x: 0 } : { opacity: 1, scale: 1, y: 0 }}
@@ -57,7 +59,7 @@ export function AdminModal({ open, onClose, title, children, footer, size = "md"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className={`flex items-center justify-between px-6 py-5 border-b border-[var(--line)] shrink-0 ${variant === 'sidebar' ? 'bg-[var(--bg)]/50 backdrop-blur-md' : ''}`}>
+            <div className={`flex items-center justify-between px-6 py-5 border-b border-[var(--line)] shrink-0 ${variant === 'sidebar' ? 'bg-[var(--card)]' : ''}`}>
               <h3 className="font-serif text-xl">{title}</h3>
               <button
                 onClick={onClose}
@@ -75,7 +77,7 @@ export function AdminModal({ open, onClose, title, children, footer, size = "md"
 
             {/* Footer */}
             {footer && (
-              <div className={`px-6 py-4 border-t border-[var(--line)] shrink-0 flex gap-3 ${variant === 'sidebar' ? 'bg-[var(--bg)]/50 backdrop-blur-md' : ''}`}>
+              <div className={`px-6 py-4 border-t border-[var(--line)] shrink-0 flex gap-3 ${variant === 'sidebar' ? 'bg-[var(--card)]' : ''}`}>
                 {footer}
               </div>
             )}

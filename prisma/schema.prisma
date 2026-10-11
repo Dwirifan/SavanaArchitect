@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+// --- Savana CMS (migrated from site_settings JSONB) ---
+
+model SavanaProject {
+  id       String   @id @default(cuid())
+  title    String
+  location String
+  year     String
+  category String
+  cover    String
+  images   String[]
+  videos   String[]
+  excerpt  String   @db.Text
+  area     String?
+  status   String   // Built | Ongoing | Concept
+  order    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([status])
+}
+
+model SavanaJournal {
+  id      String @id @default(cuid())
+  title   String
+  date    String
+  tag     String
+  image   String
+  excerpt String @db.Text
+  order   Int    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SavanaTeam {
+  id    String @id @default(cuid())
+  name  String
+  role  String
+  bio   String @db.Text
+  image String
+  order Int    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SavanaProduct {
+  id         String   @id @default(cuid())
+  name       String
+  category   String
+  price      String
+  material   String
+  dimensions String
+  image      String
+  images     String[]
+  excerpt    String   @db.Text
+  inStock    Boolean  @default(true)
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([category])
+}
+
+model SavanaStudio {
+  id                    String   @id @default("studio")
+  heroTitle             String   @db.Text
+  heroSubtitle          String   @db.Text
+  studioHeadline        String
+  studioHeadlineAccent  String
+  studioHeadlineTail    String
+  quote                 String   @db.Text
+  about                 String   @db.Text
+  philosophy            String[]
+  contactHeadline       String?
+  contactHeadlineAccent String?
+  email                 String
+  phone                 String
+  address               String
+  instagram             String
+  updatedAt             DateTime @updatedAt
+}

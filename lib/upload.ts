@@ -1,4 +1,4 @@
-export async function uploadToSupabase(file: File, folder = "general"): Promise<string> {
+export async function uploadFile(file: File, folder = "general"): Promise<string> {
   const fd = new FormData();
   fd.append("file", file);
   fd.append("folder", folder);
@@ -8,3 +8,5 @@ export async function uploadToSupabase(file: File, folder = "general"): Promise<
   if (!j.url) throw new Error("Upload failed: no URL returned");
   return j.url as string;
 }
+// backward compat — admin components still import uploadToSupabase
+export const uploadToSupabase = uploadFile;

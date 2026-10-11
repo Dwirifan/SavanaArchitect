@@ -81,7 +81,7 @@ export function ProjectsModal({ cms, onSave }: { cms: CMS; onSave: (c: CMS) => v
                 <div><label className={LABEL}>Status</label><select value={form.status} onChange={e=> setForm({...form, status:e.target.value as any})} className={FIELD+" appearance-none"}><option>Built</option><option>Ongoing</option><option>Concept</option></select></div>
                 <div><label className={LABEL}>Luas Area</label><input value={form.area||""} onChange={e=> setForm({...form, area:e.target.value})} placeholder="420 m²" className={FIELD} /></div>
               </div>
-              <MediaGallery images={form.images||[]} onImagesChange={v=> setForm({...form, images:v})} videos={form.videos||[]} onVideosChange={v=> setForm({...form, videos:v})} maxImages={100} maxVideos={4} label="Foto Project" folder="projects" cover={form.cover} onCoverChange={v=> setForm({...form, cover:v})} />
+              <MediaGallery images={form.images||[]} onImagesChange={v=> setForm(s=> ({...s, images:v}))} videos={form.videos||[]} onVideosChange={v=> setForm(s=> ({...s, videos:v}))} maxImages={100} maxVideos={4} label="Foto Project" folder="projects" cover={form.cover} onCoverChange={v=> setForm(s=> ({...s, cover:v}))} />
               <div><label className={LABEL}>Deskripsi / Konten (Rich Text)</label><TinyEditor value={form.excerpt||""} onChange={v=> setForm({...form, excerpt:v})} placeholder="Ceritakan konsepnya..." /></div>
               <div className="flex gap-3 pt-2">
                 <button onClick={()=> setView("list")} className="flex-1 py-3 rounded-xl border border-[var(--line)] hover:bg-[var(--bg)] transition-colors text-sm">Batal</button>

@@ -14,7 +14,7 @@ export function ImageUpload({ value, onChange, label = "Cover Image", folder = "
     setBusy(true);
     try {
       const blob = await compressImageToBlob(file, 1600, 0.72);
-      // upload compressed webp to Supabase Storage via API
+      // upload compressed webp to Vercel Blob via API
       const compressedFile = new File([blob], file.name.replace(/\.[^.]+$/, ".webp"), { type: "image/webp" });
       const url = await uploadToSupabase(compressedFile, folder);
       onChange(url);

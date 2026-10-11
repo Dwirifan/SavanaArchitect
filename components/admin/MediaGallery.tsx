@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { PhotoIcon, VideoCameraIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { StarIcon as StarSolid } from "@heroicons/react/24/solid";
 import { StarIcon } from "@heroicons/react/24/outline";
@@ -26,44 +26,54 @@ export function MediaGallery({
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState("");
   const [dragOver, setDragOver] = useState(false);
+  // keep latest images/videos in ref to avoid stale closure when uploading
+  const imagesRef = useRef(images);
+  const videosRef = useRef(videos);
+  useEffect(() => { imagesRef.current = images; }, [images]);
+  useEffect(() => { videosRef.current = videos; }, [videos]);
 
   const handleImages = async (files: FileList) => {
-    const remaining = maxImages - images.length;
+    const current = imagesRef.current;
+    const remaining = maxImages - current.length;
     const list = Array.from(files).slice(0, remaining);
     if (list.length === 0) return alert(`Maks ${maxImages} foto`);
     setBusy(true);
     const out: string[] = [];
-    for (let i = 0; i < list.length; i++) {
-      setProgress(`Mengupload ${i + 1}/${list.length}...`);
+    // upload parallel — faster & avoids sequential stale bug, keep order
+    const results = await Promise.all(list.map(async (file, idx) => {
+      setProgress(`Mengupload ${idx + 1}/${list.length}...`);
       try {
-        const blob = await compressImageToBlob(list[i], 1600, 0.7);
-        const f = new File([blob], list[i].name.replace(/\.[^.]+$/, ".webp"), { type: "image/webp" });
+        const blob = await compressImageToBlob(file, 1600, 0.7);
+        const f = new File([blob], file.name.replace(/\.[^.]+$/, ".webp"), { type: "image/webp" });
         const url = await uploadToSupabase(f, `${folder}/images`);
-        out.push(url);
-      } catch (e: any) { alert(e.message); }
-    }
-    const next = [...images, ...out];
+        return url as string | null;
+      } catch (e: any) { alert(e.message); return null; }
+    }));
+    for (const u of results) if (u) out.push(u);
+    if (out.length === 0) { setBusy(false); setProgress(""); return; }
+    const next = [...imagesRef.current, ...out];
     onImagesChange(next);
     if (onCoverChange && !cover && next.length) onCoverChange(next[0]);
     setBusy(false); setProgress("");
   };
 
   const handleVideos = async (files: FileList) => {
-    if (!onVideosChange || !videos) return;
-    const remaining = (maxVideos ?? 0) - videos.length;
+    if (!onVideosChange) return;
+    const current = videosRef.current ?? [];
+    const remaining = (maxVideos ?? 0) - current.length;
     const list = Array.from(files).slice(0, remaining);
     if (list.length === 0) return alert(`Maks ${maxVideos} video`);
     setBusy(true);
     const out: string[] = [];
-    for (let i = 0; i < list.length; i++) {
-      setProgress(`Mengupload video ${i + 1}/${list.length}...`);
+    const results = await Promise.all(list.map(async (file) => {
       try {
-        if (list[i].size > 25 * 1024 * 1024) throw new Error(`Video ${list[i].name} max 25MB`);
-        const url = await uploadToSupabase(list[i], `${folder}/videos`);
-        out.push(url);
-      } catch (e: any) { alert(e.message); }
-    }
-    onVideosChange([...videos, ...out]);
+        if (file.size > 25 * 1024 * 1024) throw new Error(`Video ${file.name} max 25MB`);
+        const url = await uploadToSupabase(file, `${folder}/videos`);
+        return url as string | null;
+      } catch (e: any) { alert(e.message); return null; }
+    }));
+    for (const u of results) if (u) out.push(u);
+    if (out.length) onVideosChange([...(videosRef.current ?? []), ...out]);
     setBusy(false); setProgress("");
   };
 
@@ -94,7 +104,7 @@ export function MediaGallery({
           {images.map((src, idx) => {
             const isCover = onCoverChange ? cover === src : false;
             return (
-              <div key={idx} className={`relative group aspect-square rounded-xl overflow-hidden border bg-[var(--bg)] ${isCover ? "border-amber-500 ring-2 ring-amber-400/40" : "border-[var(--line)]"}`}>
+              <div key={`${src}-${idx}`} className={`relative group aspect-square rounded-xl overflow-hidden border bg-[var(--bg)] ${isCover ? "border-amber-500 ring-2 ring-amber-400/40" : "border-[var(--line)]"}`}>
                 <img src={src} className="w-full h-full object-cover" alt="" />
                 {onCoverChange && (
                   <button
@@ -148,8 +158,8 @@ export function MediaGallery({
         </button>
       )}
 
-      <input ref={imgRef} type="file" accept="image/*" multiple className="hidden" onChange={e => e.target.files && handleImages(e.target.files)} />
-      <input ref={vidRef} type="file" accept="video/*" multiple className="hidden" onChange={e => e.target.files && handleVideos(e.target.files)} />
+      <input ref={imgRef} type="file" accept="image/*" multiple className="hidden" onChange={e => { if (e.target.files) handleImages(e.target.files); e.target.value = ""; }} />
+      <input ref={vidRef} type="file" accept="video/*" multiple className="hidden" onChange={e => { if (e.target.files) handleVideos(e.target.files); e.target.value = ""; }} />
     </div>
   );
 }

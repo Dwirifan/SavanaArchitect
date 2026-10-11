@@ -1,9 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { TrashIcon, PencilSquareIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { TrashIcon, PencilSquareIcon, PlusIcon, PhotoIcon, ArrowUpTrayIcon } from "@heroicons/react/24/outline";
 import { CMS, TeamMember } from "@/lib/cms";
 import { AdminModal } from "./AdminModal";
+import { ImageCropper } from "./ImageCropper";
+import { uploadFile } from "@/lib/upload";
 
 const FIELD_CLS = "w-full rounded-xl border border-[var(--line)] bg-[var(--bg)] px-4 py-2.5 text-sm outline-none focus:border-[var(--ink)] transition-colors text-[var(--ink)]";
 const LABEL_CLS = "text-xs tracking-widest uppercase opacity-50 block mb-1";
@@ -13,11 +15,39 @@ export function TeamModal({ cms, onSave }: { cms: CMS; onSave: (c: CMS) => void 
   const [editing, setEditing] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-
   const [preview, setPreview] = useState<TeamMember | null>(null);
+
+  // crop / upload state
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropFileName, setCropFileName] = useState("avatar.webp");
+  const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
 
   const openNew = () => { setEditing(null); setForm({ name: "", role: "", bio: "", image: "" }); setOpen(true); };
   const edit = (m: TeamMember) => { setEditing(m.id); setForm(m); setOpen(true); };
+
+  const onPickFile = (file: File) => {
+    if (!file.type.startsWith("image/")) return alert("File harus gambar");
+    setCropFileName(file.name.replace(/\.[^.]+$/, ".webp"));
+    const url = URL.createObjectURL(file);
+    setCropSrc(url);
+  };
+
+  const handleCrop = async (blob: Blob) => {
+    const url = cropSrc;
+    setCropSrc(null);
+    if (url) URL.revokeObjectURL(url);
+    setUploading(true);
+    try {
+      const file = new File([blob], cropFileName, { type: "image/webp" });
+      const uploaded = await uploadFile(file, "team");
+      setForm((s) => ({ ...s, image: uploaded }));
+    } catch (e: any) {
+      alert(e.message || "Gagal upload");
+    }
+    setUploading(false);
+  };
 
   const submit = () => {
     if (!form.name || !form.image) return alert("Nama & foto wajib");
@@ -64,11 +94,11 @@ export function TeamModal({ cms, onSave }: { cms: CMS; onSave: (c: CMS) => void 
         ))}
       </div>
 
-      <AdminModal open={open} onClose={() => setOpen(false)} title={editing ? "Edit Anggota Tim" : "Tambah Anggota Tim"} size="md" variant="modal"
+      <AdminModal open={open} onClose={() => setOpen(false)} title={editing ? "Edit Anggota Tim" : "Tambah Anggota Tim"} size="sm" variant="modal"
         footer={
           <>
             <button onClick={() => setOpen(false)} className="flex-1 py-2.5 rounded-xl border border-[var(--line)] text-sm hover:bg-[var(--bg)]">Batal</button>
-            <button onClick={submit} className="flex-1 py-2.5 rounded-xl bg-[var(--ink)] text-[var(--bg)] text-sm hover:opacity-90">Simpan Profil</button>
+            <button onClick={submit} disabled={uploading} className="flex-1 py-2.5 rounded-xl bg-[var(--ink)] text-[var(--bg)] text-sm hover:opacity-90 disabled:opacity-50">Simpan Profil</button>
           </>
         }
       >
@@ -80,16 +110,54 @@ export function TeamModal({ cms, onSave }: { cms: CMS; onSave: (c: CMS) => void 
           <label className={LABEL_CLS}>Posisi / Role</label>
           <input value={form.role || ""} onChange={e => setForm({ ...form, role: e.target.value })} placeholder="Principal Architect" className={FIELD_CLS} />
         </div>
+
         <div>
-          <label className={LABEL_CLS}>Foto URL</label>
-          <input value={form.image || ""} onChange={e => setForm({ ...form, image: e.target.value })} placeholder="https://..." className={FIELD_CLS} />
-          {form.image && <img src={form.image} className="w-full h-36 object-cover rounded-xl border border-[var(--line)] mt-2" alt="" />}
+          <label className={LABEL_CLS}>Foto Profil — klik atau drag & atur crop 1:1</label>
+          {form.image ? (
+            <div className="relative group rounded-2xl overflow-hidden border border-[var(--line)] bg-[var(--bg)] p-3 flex gap-3 items-center">
+              <img src={form.image} className="w-20 h-20 rounded-full object-cover border border-[var(--line)] shrink-0" alt="" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs opacity-60 truncate">{form.image}</p>
+                <div className="flex gap-1.5 mt-2">
+                  <button type="button" disabled={uploading} onClick={() => fileRef.current?.click()} className="px-3 py-1.5 rounded-full bg-[var(--ink)] text-[var(--bg)] text-xs disabled:opacity-50">{uploading ? "Uploading..." : "Ganti foto"}</button>
+                  <button type="button" onClick={() => setForm({ ...form, image: "" })} className="px-3 py-1.5 rounded-full border border-[var(--line)] text-xs hover:bg-[var(--card)]">Hapus</button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div
+              onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={e => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files?.[0]; if (f) onPickFile(f); }}
+              onClick={() => !uploading && fileRef.current?.click()}
+              className={`flex flex-col items-center justify-center gap-2 py-8 px-4 rounded-2xl border-2 border-dashed cursor-pointer transition-colors ${dragOver ? "border-[var(--ink)] bg-[var(--bg)]" : "border-[var(--line)] hover:border-[var(--line-strong)] hover:bg-[var(--bg)]/50"} ${uploading ? "opacity-60 pointer-events-none" : ""}`}
+            >
+              <div className="w-10 h-10 rounded-full bg-[var(--bg)] border border-[var(--line)] flex items-center justify-center">
+                <PhotoIcon className="w-5 h-5 opacity-40" />
+              </div>
+              <p className="text-sm opacity-70 flex items-center gap-1.5"><ArrowUpTrayIcon className="w-3.5 h-3.5" /> {uploading ? "Mengupload..." : "Klik atau drag & drop foto"}</p>
+              <p className="text-[11px] opacity-40">Otomatis crop 1:1 · WebP 800px — geser & zoom di langkah berikutnya</p>
+            </div>
+          )}
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => { const f=e.target.files?.[0]; if (f) onPickFile(f); e.target.value=""; }} />
+          {/* paste URL fallback */}
+          <input
+            value={form.image && (form.image.includes("blob.vercel-storage.com") || form.image.startsWith("/uploads/") || form.image.startsWith("data:")) ? "" : form.image || ""}
+            onChange={e => setForm({ ...form, image: e.target.value })}
+            placeholder="atau paste URL https://..."
+            className="mt-2 w-full rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-xs outline-none focus:border-[var(--ink)] placeholder:opacity-40"
+          />
         </div>
+
         <div>
           <label className={LABEL_CLS}>Bio Singkat</label>
           <textarea value={form.bio || ""} onChange={e => setForm({ ...form, bio: e.target.value })} rows={3} placeholder="Deskripsi singkat..." className={FIELD_CLS} />
         </div>
       </AdminModal>
+
+      {cropSrc && (
+        <ImageCropper src={cropSrc} aspect={1} outputSize={800} onCancel={() => { URL.revokeObjectURL(cropSrc); setCropSrc(null); }} onCrop={handleCrop} />
+      )}
 
       <AdminModal open={!!deleteConfirm} onClose={() => setDeleteConfirm(null)} title="Hapus Anggota Tim?" size="sm" variant="modal"
         footer={
