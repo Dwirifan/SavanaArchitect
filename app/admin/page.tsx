@@ -85,13 +85,12 @@ export default function AdminPage() {
     <div className="flex min-h-screen bg-[var(--bg)] text-[var(--ink)]">
       {/* ── Sidebar ── */}
       <aside className="w-64 border-r border-[var(--line)] bg-[var(--card)] flex flex-col sticky top-0 h-screen overflow-y-auto">
-        <div className="p-6 border-b border-[var(--line)]">
+        <div className="h-16 px-6 flex items-center border-b border-[var(--line)] shrink-0">
           <img
             src={theme === "dark" ? "/savanaarsitekwhite.png" : "/savanaarsitekblack.png"}
             alt="SAVANA Architecture"
-            className="h-8 w-auto object-contain"
+            className="h-10 w-auto object-contain"
           />
-          <p className="text-[10px] tracking-widest uppercase opacity-40 mt-1.5">Digital Studio</p>
         </div>
         
         <nav className="flex-1 p-4 space-y-1">
@@ -140,9 +139,9 @@ export default function AdminPage() {
 
       {/* ── Main Content ── */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className="h-24 border-b border-[var(--line)] bg-[var(--bg)]/80 backdrop-blur-md px-6 md:px-10 flex flex-col justify-center shrink-0 sticky top-0 z-40">
-          <h2 className="text-2xl font-serif">{activeMenu?.label}</h2>
-          <p className="text-sm opacity-60 mt-0.5">{activeMenu?.desc}</p>
+        <header className="h-16 border-b border-[var(--line)] bg-[var(--card)] px-6 md:px-10 flex flex-col justify-center shrink-0 sticky top-0 z-40">
+          <h2 className="text-xl font-serif leading-none">{activeMenu?.label}</h2>
+          <p className="text-xs opacity-60 mt-1 leading-none">{activeMenu?.desc}</p>
         </header>
         
         <div className="flex-1 overflow-y-auto p-6 md:p-10">

@@ -21,9 +21,14 @@ export function AdminModal({ open, onClose, title, children, footer, size = "md"
     return () => window.removeEventListener("keydown", handle);
   }, [open, onClose]);
 
-  // modal centered — compact
-  const modalWidth = size === "sm" ? "w-[300px] max-w-[85vw]" : size === "lg" ? "w-[480px] max-w-[88vw]" : "w-[360px] max-w-[86vw]";
+  // modal centered — compact (inline style for reliability)
+  const modalStyle: React.CSSProperties =
+    size === "sm" ? { width: "480px", maxWidth: "90vw" } :
+    size === "lg" ? { width: "720px", maxWidth: "92vw" } :
+    { width: "600px", maxWidth: "92vw" };
   const drawerWidth = size === "sm" ? "w-[340px] max-w-[85vw]" : size === "lg" ? "w-[600px] max-w-[92vw]" : "w-[480px] max-w-[90vw]";
+
+  const isSidebar = variant === "sidebar";
 
   return (
     <AnimatePresence>
@@ -31,26 +36,37 @@ export function AdminModal({ open, onClose, title, children, footer, size = "md"
         <motion.div
           key="backdrop"
           className={
-            variant === "sidebar"
-              ? "fixed top-24 right-0 bottom-0 left-0 md:left-64 z-50 flex justify-end"
-              : "fixed top-24 bottom-0 left-0 right-0 md:left-64 z-50 flex items-center justify-center p-4 md:p-6"
+            isSidebar
+              ? "fixed top-16 right-0 bottom-0 left-0 md:left-64 z-50 flex justify-end"
+              : "fixed top-16 bottom-0 left-0 right-0 md:left-64 z-50 flex items-center justify-center p-4 md:p-6"
           }
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
           onClick={onClose}
         >
-          {/* Backdrop — subtle: less blur */}
-          <div className={`absolute inset-0 ${variant === 'sidebar' ? 'bg-black/15 backdrop-blur-[2px]' : 'bg-black/30 backdrop-blur-[2px]'}`} />
+          {/* Backdrop — blur animated via framer-motion */}
+          <motion.div
+            className="absolute inset-0"
+            initial={{ backdropFilter: "blur(0px)", backgroundColor: "rgba(0,0,0,0)" }}
+            animate={{
+              backdropFilter: "blur(4px)",
+              backgroundColor: isSidebar ? "rgba(0,0,0,0.12)" : "rgba(0,0,0,0.28)",
+            }}
+            exit={{ backdropFilter: "blur(0px)", backgroundColor: "rgba(0,0,0,0)" }}
+            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            style={{ WebkitBackdropFilter: "blur(4px)" } as any}
+          />
 
           {/* Dialog / Drawer */}
           <motion.div
             key="dialog"
+            style={isSidebar ? undefined : modalStyle}
             className={
-              variant === "sidebar"
+              isSidebar
                 ? `relative h-full ${drawerWidth} bg-[var(--card)] text-[var(--ink)] shadow-2xl border-l border-[var(--line)] flex flex-col shrink-0`
-                : `relative w-full ${modalWidth} bg-[var(--card)] text-[var(--ink)] rounded-2xl shadow-2xl border border-[var(--line)] flex flex-col max-h-[90vh] overflow-hidden shrink-0`
+                : `relative w-full bg-[var(--card)] text-[var(--ink)] rounded-2xl shadow-2xl border border-[var(--line)] flex flex-col max-h-[85vh] overflow-hidden shrink-0`
             }
             initial={variant === "sidebar" ? { x: "100%" } : { opacity: 0, scale: 0.95, y: 12 }}
             animate={variant === "sidebar" ? { x: 0 } : { opacity: 1, scale: 1, y: 0 }}
