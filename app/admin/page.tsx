@@ -77,7 +77,7 @@ export default function AdminPage() {
   return (
     <div className="flex min-h-screen bg-[var(--bg)] text-[var(--ink)]">
       {/* Desktop Sidebar - only lg+ */}
-      <aside className="hidden lg:flex w-64 xl:w-72 border-r border-[var(--line)] bg-[var(--card)] flex-col sticky top-0 h-screen overflow-y-auto shrink-0 z-30">
+      <aside className="hidden lg:flex w-64 xl:w-72 border-r border-[var(--line)] bg-[var(--card)] flex-col sticky top-0 h-screen overflow-y-auto shrink-0 z-50">
         <div className="h-16 px-6 flex items-center border-b border-[var(--line)] shrink-0">
           <img src={theme === "dark" ? "/savanaarsitekwhite.png" : "/savanaarsitekblack.png"} alt="SAVANA" className="h-9 w-auto object-contain" />
         </div>
@@ -98,7 +98,7 @@ export default function AdminPage() {
 
       {/* Main column */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
-        <header className="h-14 lg:h-16 border-b border-[var(--line)] bg-[var(--card)]/95 backdrop-blur px-4 sm:px-6 lg:px-8 flex items-center justify-between shrink-0 sticky top-0 z-20">
+        <header className="h-14 lg:h-16 border-b border-[var(--line)] bg-[var(--card)] px-4 sm:px-6 lg:px-8 flex items-center justify-between shrink-0 sticky top-0 z-40">
           {/* Title - no hamburger sidebar (bottom nav handles it) */}
           <div className="min-w-0">
             <h2 className="text-[15px] lg:text-xl font-serif leading-none truncate">{activeMenu?.label}</h2>
@@ -143,7 +143,7 @@ export default function AdminPage() {
       </div>
 
       {/* Bottom Navigation - hanya HP/tablet */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-[var(--card)]/95 backdrop-blur border-t border-[var(--line)] pb-[env(safe-area-inset-bottom)]">
+      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-[var(--card)] border-t border-[var(--line)] pb-[env(safe-area-inset-bottom)]">
         <div className="flex items-center justify-around px-1 py-1.5 max-w-lg mx-auto">
           {MENUS.map(m => {
             const active = tab === m.id;

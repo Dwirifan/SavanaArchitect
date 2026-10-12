@@ -35,38 +35,30 @@ export function AdminModal({ open, onClose, title, children, footer, size = "md"
       {open && (
         <motion.div
           key="backdrop"
-          className={
-            isSidebar
-              ? "fixed top-16 right-0 bottom-0 left-0 md:left-64 z-50 flex justify-end"
-              : "fixed top-16 bottom-0 left-0 right-0 md:left-64 z-50 flex items-center justify-center p-4 md:p-6"
-          }
+          className="fixed inset-0 z-30 flex"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.15 }}
           onClick={onClose}
         >
-          {/* Backdrop — blur animated via framer-motion */}
-          <motion.div
-            className="absolute inset-0"
-            initial={{ backdropFilter: "blur(0px)", backgroundColor: "rgba(0,0,0,0)" }}
-            animate={{
-              backdropFilter: "blur(4px)",
-              backgroundColor: isSidebar ? "rgba(0,0,0,0.12)" : "rgba(0,0,0,0.28)",
-            }}
-            exit={{ backdropFilter: "blur(0px)", backgroundColor: "rgba(0,0,0,0)" }}
-            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-            style={{ WebkitBackdropFilter: "blur(4px)" } as any}
-          />
+          {/* left spacer = sidebar area — TIDAK ada overlay, biar sidebar & navbar 100% clear */}
+          <div className="hidden lg:block w-64 xl:w-72 shrink-0" aria-hidden />
+          <div className="flex-1 flex flex-col min-w-0">
+            {/* top spacer = navbar area */}
+            <div className="h-14 lg:h-16 shrink-0 hidden lg:block" aria-hidden />
+            <div className={isSidebar ? "flex-1 flex justify-end min-h-0 relative" : "flex-1 flex items-center justify-center p-4 md:p-6 relative min-h-0"}>
+              {/* backdrop blur SUPER tipis — hanya area konten, tidak kena sidebar/navbar */}
+              <div className="absolute inset-0 bg-black/[0.04] dark:bg-black/15 backdrop-blur-[1px]" onClick={onClose} aria-hidden />
 
-          {/* Dialog / Drawer */}
+          {/* Dialog / Drawer — solid, no translucency */}
           <motion.div
             key="dialog"
             style={isSidebar ? undefined : modalStyle}
             className={
               isSidebar
-                ? `relative h-full ${drawerWidth} bg-[var(--card)] text-[var(--ink)] shadow-2xl border-l border-[var(--line)] flex flex-col shrink-0`
-                : `relative w-full bg-[var(--card)] text-[var(--ink)] rounded-2xl shadow-2xl border border-[var(--line)] flex flex-col max-h-[85vh] overflow-hidden shrink-0`
+                ? `relative h-full ${drawerWidth} bg-[var(--card)] text-[var(--ink)] shadow-[-12px_0_40px_rgba(0,0,0,0.12)] border-l border-[var(--line)] flex flex-col shrink-0`
+                : `relative w-full bg-[var(--card)] text-[var(--ink)] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-[var(--line)] flex flex-col max-h-[85vh] overflow-hidden shrink-0`
             }
             initial={variant === "sidebar" ? { x: "100%" } : { opacity: 0, scale: 0.95, y: 12 }}
             animate={variant === "sidebar" ? { x: 0 } : { opacity: 1, scale: 1, y: 0 }}
@@ -98,6 +90,8 @@ export function AdminModal({ open, onClose, title, children, footer, size = "md"
               </div>
             )}
           </motion.div>
+            </div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
