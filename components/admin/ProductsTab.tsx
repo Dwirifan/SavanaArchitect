@@ -55,9 +55,9 @@ export function ProductsModal({ cms, onSave }: { cms: CMS; onSave: (c: CMS) => v
                   <img src={p.image} className="w-12 h-12 rounded-lg object-cover shrink-0 border border-[var(--line)]" alt=""/>
                   <div className="flex-1 min-w-0"><div className="text-sm font-medium truncate">{p.name}</div><div className="text-[11px] opacity-40 uppercase tracking-widest mt-0.5">{p.category} · {p.price} · {(p.images?.length||0)} foto</div></div>
                   <span className={`text-[10px] px-2 py-0.5 rounded-full border shrink-0 ${p.inStock ? "border-emerald-500/30 text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 dark:text-emerald-400" : "border-[var(--line)] opacity-50"}`}>{p.inStock ? "Ready" : "Pre-Order"}</span>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                    <button onClick={e=>{e.stopPropagation(); openEdit(p);}} className="p-1.5 rounded-lg border border-[var(--line)] hover:bg-[var(--card)] bg-[var(--card)]"><PencilSquareIcon className="w-3.5 h-3.5"/></button>
-                    <button onClick={e=>{e.stopPropagation(); setDeleteConfirm(p.id);}} className="p-1.5 rounded-lg bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20"><TrashIcon className="w-3.5 h-3.5"/></button>
+                  <div className="flex gap-1 shrink-0">
+                    <button onClick={e=>{e.stopPropagation(); openEdit(p);}} className="p-2 rounded-lg border border-[var(--line)] bg-[var(--card)] hover:bg-[var(--bg)] active:scale-95 transition" aria-label="Edit"><PencilSquareIcon className="w-4 h-4"/></button>
+                    <button onClick={e=>{e.stopPropagation(); setDeleteConfirm(p.id);}} className="p-2 rounded-lg bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 active:scale-95 transition" aria-label="Delete"><TrashIcon className="w-4 h-4"/></button>
                   </div>
                 </motion.div>
               ))}

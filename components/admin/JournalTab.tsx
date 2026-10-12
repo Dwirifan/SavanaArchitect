@@ -48,9 +48,9 @@ export function JournalModal({ cms, onSave }: { cms: CMS; onSave: (c: CMS) => vo
                     <div className="text-sm font-serif truncate">{j.title}</div>
                     <div className="text-[11px] opacity-40 uppercase tracking-widest mt-0.5">{j.tag} · {j.date}</div>
                   </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                    <button onClick={(e) => { e.stopPropagation(); openEdit(j); }} className="p-1.5 rounded-lg border border-[var(--line)] hover:bg-[var(--card)] bg-[var(--card)]"><PencilSquareIcon className="w-3.5 h-3.5" /></button>
-                    <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(j.id); }} className="p-1.5 rounded-lg bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20"><TrashIcon className="w-3.5 h-3.5" /></button>
+                  <div className="flex gap-1 shrink-0">
+                    <button onClick={(e) => { e.stopPropagation(); openEdit(j); }} className="p-2 rounded-lg border border-[var(--line)] bg-[var(--card)] hover:bg-[var(--bg)] active:scale-95 transition" aria-label="Edit"><PencilSquareIcon className="w-4 h-4" /></button>
+                    <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(j.id); }} className="p-2 rounded-lg bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 active:scale-95 transition" aria-label="Delete"><TrashIcon className="w-4 h-4" /></button>
                   </div>
                 </motion.div>
               ))}
